@@ -1,0 +1,292 @@
+:root {
+    --bg-color: #050505;
+    --text-primary: #e0e0e0;
+    --text-muted: #888888;
+    --accent: #ffffff;
+    --glow-spread: 8px;
+    --glow-opacity: 0.6;
+    --glass-bg: rgba(25, 25, 25, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    
+    --font-heading: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Starfield Background */
+#starfield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    background: radial-gradient(circle at center, #111 0%, #000 100%);
+    pointer-events: none;
+}
+
+/* --- SVG CLIMBER RIG --- */
+.rope-viewport {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 100vh;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.rope-svg {
+    width: 100%;
+    height: 100vh;
+}
+
+.head-poly {
+    fill: #1a1a1a;
+    stroke: var(--accent);
+    stroke-width: 2;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.4));
+}
+
+.torso-poly {
+    fill: #222;
+    stroke: var(--accent);
+    stroke-width: 2;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
+}
+
+.limb-poly {
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+}
+
+.limb-poly.back {
+    fill: #111;
+    stroke: rgba(200, 200, 200, 0.4);
+}
+
+.limb-poly.front {
+    fill: #222;
+    stroke: var(--accent);
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.5));
+}
+
+/* Main Content Layout */
+.content-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 100px;
+}
+
+.panel {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 2rem;
+    width: 50%;
+}
+
+.panel.align-right {
+    margin-left: 50%;
+    justify-content: flex-start;
+    padding-left: 5vw;
+}
+
+.panel:not(.align-right) {
+    justify-content: flex-end;
+    padding-right: 5vw;
+    text-align: right;
+}
+
+.content-box {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 3rem;
+    border-radius: 12px;
+    max-width: 500px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.content-box:hover {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* Typography & Visuals */
+h1, h2, h3 {
+    font-family: var(--font-heading);
+    letter-spacing: 2px;
+}
+
+.glitch {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.divider {
+    height: 2px;
+    width: 50px;
+    background: var(--accent);
+    margin: 1rem 0 1.5rem 0;
+    box-shadow: 0 0 10px var(--accent);
+}
+
+.panel:not(.align-right) .divider {
+    margin-left: auto;
+}
+
+/* Buttons */
+.glow-btn {
+    background: transparent;
+    color: var(--accent);
+    font-family: var(--font-heading);
+    border: 1px solid var(--accent);
+    padding: 12px 30px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    margin-top: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.glow-btn:hover {
+    background: var(--accent);
+    color: var(--bg-color);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+.glow-btn.alt { border-color: var(--text-muted); color: var(--text-muted); box-shadow: none; }
+.glow-btn.alt:hover { background: var(--text-muted); color: var(--bg-color); }
+.glow-btn.success { border-color: #00ffaa; color: #00ffaa; box-shadow: 0 0 10px rgba(0, 255, 170, 0.2); text-decoration: none; display: inline-block;}
+.glow-btn.success:hover { background: #00ffaa; color: var(--bg-color); }
+
+/* Works Section */
+.works-box { max-width: 600px; }
+.cards-container { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 1.5rem; }
+.card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; transition: all 0.3s ease; cursor: pointer; }
+.card:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.3); transform: translateX(-5px); }
+.card-image { width: 80px; height: 80px; background: #222; border-radius: 4px; margin-right: 1.5rem; position: relative; overflow: hidden; }
+.card-info h3 { font-size: 1.2rem; margin-bottom: 0.3rem; }
+.card-info p { font-size: 0.9rem; color: var(--text-muted); }
+
+/* Contact Form */
+.minimal-form { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+.minimal-form input, .minimal-form textarea { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--glass-border); padding: 12px; color: var(--text-primary); font-family: var(--font-body); font-size: 1rem; border-radius: 4px; outline: none; transition: border-color 0.3s; }
+.minimal-form input:focus, .minimal-form textarea:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(255, 255, 255, 0.2); }
+
+/* --- CAMERA & POLAROID UI --- */
+.camera-box { padding: 2rem; max-width: 450px; text-align: center; }
+.camera-container {
+    width: 100%;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cam-ui {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.hidden { display: none !important; }
+.hidden-canvas { display: none; }
+
+#live-video, #photo-preview {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 0 15px rgba(255,255,255,0.05);
+    transform: scaleX(-1); /* Mirror camera */
+}
+#photo-preview { transform: none; } /* Usually previews shouldn't be mirrored, or maybe they should. Lets keep it normal. */
+
+.cam-actions {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+}
+
+/* Polaroid Style */
+.polaroid-frame {
+    background: #fff;
+    padding: 10px 10px 40px 10px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 3px rgba(0,0,0,0.2);
+    display: inline-block;
+    transform: rotate(-3deg);
+    transition: transform 0.3s ease;
+}
+.polaroid-frame:hover { transform: rotate(0deg) scale(1.05); }
+
+.polaroid-frame img {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    background: #111;
+}
+
+.polaroid-footer {
+    color: #444;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 15px;
+    letter-spacing: 2px;
+}
+
+/* Footer & Mobile */
+.minimal-footer { text-align: center; padding: 3rem 0; color: var(--text-muted); font-family: var(--font-heading); font-size: 0.8rem; border-top: 1px solid var(--glass-border); margin-top: 5rem; }
+@media (max-width: 768px) {
+    .rope-viewport { opacity: 0.2; left: 20px; transform: none; }
+    .panel, .panel.align-right { width: 100%; margin-left: 0; padding: 4rem 1.5rem; text-align: left; justify-content: center; }
+    .panel:not(.align-right) .divider { margin-left: 0; }
+    .content-box { padding: 2rem; max-width: 100%; }
+}
