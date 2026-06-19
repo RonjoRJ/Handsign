@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UX/UI Designer | Futuristic Portfolio</title>
+    <meta name="description" content="Futuristic dark-themed portfolio of a UX/UI Designer.">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="starfield"></div>
+    
+    <div class="rope-viewport">
+        <svg viewBox="0 0 200 1000" preserveAspectRatio="xMidYMin slice" class="rope-svg">
+            <!-- Thick Rope -->
+            <line x1="100" y1="0" x2="100" y2="10000" stroke="#222" stroke-width="8" stroke-linecap="round"/>
+            
+            <g id="climber" transform="translate(100, 50)">
+                <!-- Back Arm (Right) - Pivots at 0,-10 -->
+                <g id="arm-right" class="joint">
+                    <!-- Upper Arm -->
+                    <path d="M 0,-2 L -3,-18 L 18,-35 L 28,-25 Z" class="limb-poly back"/>
+                    <!-- Forearm right -->
+                    <path d="M 18,-35 L 28,-25 L 15,-48 L -2,-45 Z" class="limb-poly back"/>
+                </g>
+
+                <!-- Back Leg (Right) - Pivots at 0,30 -->
+                <g id="leg-right" class="joint">
+                    <!-- Thigh right -->
+                    <path d="M -5,25 L 8,28 L 25,50 L 15,60 Z" class="limb-poly back"/>
+                    <!-- Calf right, includes foot -->
+                    <path d="M 25,50 L 15,60 L 5,80 L -5,78 L 0,85 L 15,82 Z" class="limb-poly back"/>
+                </g>
+
+                <!-- Torso (Detailed Cyberpunk Armor) -->
+                <path d="M -18,-20 L 18,-20 L 25,-5 L 15,20 L 10,35 L -10,35 L -15,20 L -25,-5 Z" class="torso-poly"/>
+                <!-- Chest Accent Hex -->
+                <polygon points="0,-10 8,-5 8,5 0,10 -8,5 -8,-5" fill="#00ffaa" opacity="0.8" style="filter: drop-shadow(0 0 5px #00ffaa);"/>
+
+                <!-- Head (Futuristic Visor/Helmet) -->
+                <g transform="translate(0, -38)">
+                    <!-- Helmet base -->
+                    <path d="M -15,5 C -15,-15 15,-15 15,5 L 10,15 L -10,15 Z" class="head-poly"/>
+                    <!-- Glowing Visor -->
+                    <path d="M -16,2 Q 0,-2 16,2 L 12,8 Q 0,4 -12,8 Z" fill="#00ffaa" style="filter: drop-shadow(0 0 4px #00ffaa);"/>
+                </g>
+
+                <!-- Front Leg (Left) - Pivots at 0,30 -->
+                <g id="leg-left" class="joint front-limb">
+                    <!-- Thigh left -->
+                    <path d="M -8,25 L 5,28 L -15,55 L -25,48 Z" class="limb-poly front"/>
+                    <!-- Calf left, includes foot -->
+                    <path d="M -15,55 L -25,48 L -10,75 L -20,70 L -15,85 L -5,80 Z" class="limb-poly front"/>
+                </g>
+
+                <!-- Front Arm (Left) - Pivots at 0,-10 -->
+                <g id="arm-left" class="joint front-limb">
+                    <!-- Upper Arm -->
+                    <path d="M -2,-2 L 3,-18 L -18,-30 L -28,-18 Z" class="limb-poly front"/>
+                    <!-- Forearm left -->
+                    <path d="M -18,-30 L -28,-18 L -18,-45 L -2,-52 Z" class="limb-poly front"/>
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Main Content -->
+    <main class="content-wrapper">
+        <section id="hero" class="panel">
+            <div class="content-box">
+                <h1 class="glitch" data-text="UX/UI DESIGNER">UX/UI DESIGNER</h1>
+                <p class="subtitle">Crafting intelligent, sleek, and futuristic digital experiences.</p>
+                <div class="hero-actions">
+                    <button class="glow-btn">Explore</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="panel align-right">
+            <div class="content-box">
+                <h2 class="section-title">01. ABOUT</h2>
+                <div class="divider"></div>
+                <p>I build elegant, minimalistic interfaces that glow with purpose. Every pixel is calculated, every interaction is smooth. Driven by data, informed by aesthetics.</p>
+            </div>
+        </section>
+
+        <section id="works" class="panel">
+            <div class="content-box works-box">
+                <h2 class="section-title">02. WORKS</h2>
+                <div class="divider"></div>
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-image"></div>
+                        <div class="card-info">
+                            <h3>Project Alpha</h3>
+                            <p>Fintech Dashboard</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-image"></div>
+                        <div class="card-info">
+                            <h3>Project Beta</h3>
+                            <p>AI Interface Mod</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-image"></div>
+                        <div class="card-info">
+                            <h3>Project Gamma</h3>
+                            <p>Nexus E-Commerce</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="glow-btn outline view-more">View More</button>
+            </div>
+        </section>
+
+        <!-- New Camera Section -->
+        <section id="camera-section" class="panel align-right">
+            <div class="content-box camera-box">
+                <h2 class="section-title">03. IDENTITY UPLOAD</h2>
+                <div class="divider"></div>
+                <p>Verify your presence in the mainframe. Capture your biometrics to proceed.</p>
+                
+                <div class="camera-container empty" id="camera-container">
+                    <!-- Step 1: Init -->
+                    <div class="cam-ui" id="cam-init-ui">
+                        <button class="glow-btn" id="btn-init-cam">Initialize Camera</button>
+                    </div>
+
+                    <!-- Step 2: Live View -->
+                    <div class="cam-ui hidden" id="cam-live-ui">
+                        <video id="live-video" autoplay playsinline></video>
+                        <button class="glow-btn capture" id="btn-capture">Capture</button>
+                    </div>
+
+                    <!-- Step 3: Confirmation -->
+                    <div class="cam-ui hidden" id="cam-confirm-ui">
+                        <canvas id="photo-canvas" class="hidden-canvas"></canvas>
+                        <img id="photo-preview" src="" alt="Captured preview"/>
+                        <div class="cam-actions">
+                            <button class="glow-btn alt" id="btn-retake">Retake</button>
+                            <button class="glow-btn" id="btn-proceed">Proceed</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Final Polaroid -->
+                    <div class="cam-ui hidden" id="cam-polaroid-ui">
+                        <div class="polaroid-frame" id="polaroid-frame">
+                            <img id="polaroid-img" src="" alt="Polaroid Print"/>
+                            <div class="polaroid-footer">USER_VERIFIED</div>
+                        </div>
+                        <a href="#" download="mainframe_identity.png" class="glow-btn success" id="btn-download">Download ID</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="panel">
+            <div class="content-box">
+                <h2 class="section-title">04. COMMUNICATION</h2>
+                <div class="divider"></div>
+                <p>Ready to build the future? Send a secure transmission.</p>
+                <form class="minimal-form">
+                    <input type="email" placeholder="YOUR_EMAIL_ADDRESS" required>
+                    <textarea placeholder="MESSAGE_PAYLOAD" rows="4" required></textarea>
+                    <button class="glow-btn" type="submit">TRANSMIT</button>
+                </form>
+            </div>
+        </section>
+        
+        <footer class="minimal-footer">
+            <p>&copy; 2026 UX/UI ARCHITECT // ALL TRADEMARKS REGISTERED</p>
+        </footer>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
