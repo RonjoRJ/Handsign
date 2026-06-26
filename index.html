@@ -68,14 +68,12 @@
 
         .input_video {
             display: none;
-            /* Processing directly from video, display handled by canvas */
         }
 
         .output_canvas {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* Explicitly NOT using CSS mirror here, handled in JS to prevent text mirroring */
         }
 
         /* Glassmorphism UI Panels */
@@ -103,155 +101,294 @@
             opacity: 0.8;
         }
 
-        .info-panel {
+        /* Left Sidebar Panel */
+        .sidebar {
             position: absolute;
             top: 24px;
             left: 24px;
-            width: 280px;
-        }
-
-        .coords-panel {
-            position: absolute;
-            bottom: 24px;
-            right: 24px;
-            width: 260px;
-            font-size: 0.85rem;
-            transform: scale(0.5);
-            transform-origin: bottom right;
-            opacity: 0.5;
-            transition: opacity 0.3s;
-        }
-
-        /* Header / Status */
-        .header {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 20px;
+            bottom: 84px; /* leaves room for Toggle UI button */
+            width: 320px;
             display: flex;
-            align-items: center;
-            gap: 12px;
+            flex-direction: column;
+            background: rgba(3, 10, 20, 0.65);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(0, 240, 255, 0.05);
+            z-index: 20;
+            box-sizing: border-box;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--danger);
-            box-shadow: 0 0 10px var(--danger);
-            transition: background 0.3s, box-shadow 0.3s;
+        /* Sidebar Visibility Toggle States */
+        .ui-collapsed .sidebar {
+            transform: translateX(-360px);
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .status-dot.active {
-            background: var(--success);
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
-            animation: pulse-success 2s infinite;
+        .ui-collapsed .total-fingers-panel {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+            pointer-events: none;
         }
 
-        @keyframes pulse-success {
-            0% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
+        .header-graph {
+            opacity: 0.8;
+            filter: drop-shadow(0 0 3px rgba(0, 240, 255, 0.4));
         }
 
-        /* Metric Rows */
-        .metric {
+        .fps-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
-            font-size: 0.95rem;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .metric-value {
-            font-family: monospace;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 4px 10px;
-            border-radius: 6px;
-            color: var(--accent);
-            letter-spacing: 0.5px;
-        }
-
-        /* Gesture Indicator */
-        .gesture-box {
-            margin-top: 24px;
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-            font-weight: 600;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .gesture-box.pinch {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
-            transform: scale(1.02);
-        }
-
-        .gesture-box.open {
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border-color: #34d399;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-            transform: scale(1.02);
-        }
-
-        .gesture-box.sign {
-            background: rgba(168, 85, 247, 0.15);
-            color: #d8b4fe;
-            border-color: #a855f7;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
-            transform: scale(1.05);
-            font-size: 1.1rem;
-        }
-
-        /* Buttons */
-        .button-group {
-            margin-top: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .btn {
+        .fps-badge {
+            border: 1px solid rgba(0, 240, 255, 0.3);
             background: rgba(0, 240, 255, 0.05);
             color: var(--accent);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            padding: 10px 16px;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .tracking-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 12px;
             border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-family: inherit;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
-            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0);
-        }
-
-        .btn:hover {
-            background: rgba(0, 240, 255, 0.15);
-            color: #fff;
-            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.2), 0 0 15px rgba(0, 240, 255, 0.3);
-            border-color: rgba(0, 240, 255, 0.5);
-        }
-
-        .btn.active {
-            background: var(--accent);
-            color: #000;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            background: rgba(0, 240, 255, 0.02);
+            color: var(--accent);
             font-weight: 600;
-            box-shadow: 0 0 20px var(--accent-glow);
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .tracking-indicator svg {
+            filter: drop-shadow(0 0 3px rgba(0, 240, 255, 0.5));
+        }
+
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+            box-sizing: border-box;
+            text-transform: uppercase;
+            font-family: inherit;
+        }
+
+        /* View Options Buttons */
+        .btn-view-opt {
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            color: var(--accent);
+        }
+        .btn-view-opt:hover {
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+        }
+        .btn-view-opt.active {
+            background: var(--accent);
+            color: #030812;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
             text-shadow: none;
+        }
+
+        /* Tools Buttons */
+        .btn-tool-zoom {
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            color: var(--accent);
+        }
+        .btn-tool-zoom:hover {
+            background: rgba(0, 240, 255, 0.08);
+        }
+        .btn-tool-zoom.active {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn-tool-ironman {
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .btn-tool-ironman:hover {
+            background: rgba(239, 68, 68, 0.08);
+        }
+        .btn-tool-ironman.active {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
+        }
+
+        .btn-tool-globe {
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+        .btn-tool-globe:hover {
+            background: rgba(59, 130, 246, 0.08);
+        }
+        .btn-tool-globe.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.35);
+        }
+
+        .btn-tool-reset {
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            color: #94a3b8;
+        }
+        .btn-tool-reset:hover {
+            background: rgba(148, 163, 184, 0.1);
+            color: #fff;
+        }
+
+        /* Toggle UI button */
+        .btn-toggle-ui {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            width: 320px;
+            z-index: 100;
+            background: rgba(3, 10, 20, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .btn-toggle-ui:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
+        }
+        .ui-collapsed .btn-toggle-ui {
+            width: 140px;
+            background: rgba(3, 10, 20, 0.85);
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Main Viewport for Camera */
+        .main-viewport {
+            position: absolute;
+            top: 24px;
+            left: 368px;
+            right: 24px;
+            bottom: 24px;
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            z-index: 5;
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.6);
+            background: #000;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ui-collapsed .main-viewport {
+            left: 24px;
+        }
+
+        /* HUD Corner Brackets */
+        .corner-bracket {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--accent);
+            z-index: 10;
+            pointer-events: none;
+            filter: drop-shadow(0 0 3px var(--accent-glow));
+        }
+        .corner-bracket.top-left {
+            top: 12px;
+            left: 12px;
+            border-right: none;
+            border-bottom: none;
+        }
+        .corner-bracket.top-right {
+            top: 12px;
+            right: 12px;
+            border-left: none;
+            border-bottom: none;
+        }
+        .corner-bracket.bottom-left {
+            bottom: 12px;
+            left: 12px;
+            border-right: none;
+            border-top: none;
+        }
+        .corner-bracket.bottom-right {
+            bottom: 12px;
+            right: 12px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* Total Fingers Panel */
+        .total-fingers-panel {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(3, 10, 20, 0.65);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            padding: 12px 48px;
+            box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.15), 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 15;
+            text-align: center;
+            min-width: 180px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .total-fingers-value {
+            font-size: 2.8rem;
+            color: var(--accent);
+            font-family: monospace;
+            font-weight: 800;
+            display: block;
+            margin-top: 4px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+            line-height: 1;
         }
 
         /* Loading Overlay */
@@ -288,63 +425,6 @@
             color: #94a3b8;
             font-weight: 500;
         }
-
-        /* Total Fingers Panel */
-        .total-fingers-panel {
-            position: absolute;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 16px 32px;
-            text-align: center;
-            min-width: 200px;
-        }
-
-        .total-fingers-value {
-            font-size: 2.5rem;
-            color: var(--accent);
-            font-family: monospace;
-            display: block;
-            margin-top: 8px;
-        }
-
-        /* Coordinate Rows */
-        .coord-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .coord-row:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        .coord-label {
-            color: #94a3b8;
-            width: 100px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .coord-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .val {
-            font-family: monospace;
-            color: white;
-            flex-grow: 1;
-            text-align: right;
-            letter-spacing: 0.5px;
-        }
     </style>
 </head>
 
@@ -352,7 +432,10 @@
 
     <div class="app-container">
         <!-- Toggle UI Button -->
-        <button id="btnToggleUI" style="position: absolute; bottom: 24px; left: 24px; z-index: 100; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 8px; cursor: pointer; backdrop-filter: blur(10px);">👁 Toggle UI</button>
+        <button class="sidebar-btn btn-toggle-ui" id="btnToggleUI">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8s3-5.5 7-5.5S15 8 15 8s-3 5.5-7 5.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/></svg>
+            <span>Toggle UI</span>
+        </button>
 
         <!-- Loading Screen -->
         <div class="loading-overlay" id="loadingOverlay">
@@ -360,83 +443,86 @@
             <div class="loading-text">Initializing AI Models & Camera...</div>
         </div>
 
-        <!-- Video & Canvas -->
-        <div class="video-wrapper">
-            <video class="input_video" autoplay playsinline></video>
-            <canvas class="output_canvas" id="canvas"></canvas>
-        </div>
+        <!-- Main Viewport (Video/Canvas & Corners) -->
+        <div class="main-viewport" id="mainViewport">
+            <!-- HUD Corner Brackets -->
+            <div class="corner-bracket top-left"></div>
+            <div class="corner-bracket top-right"></div>
+            <div class="corner-bracket bottom-left"></div>
+            <div class="corner-bracket bottom-right"></div>
 
-        <!-- Left Interface Panel -->
-        <div class="panel info-panel">
-            <div class="header">
-                <div class="status-dot" id="statusDot"></div>
-                <span>Hand Tracker</span>
+            <div class="video-wrapper">
+                <video class="input_video" autoplay playsinline></video>
+                <canvas class="output_canvas" id="canvas"></canvas>
             </div>
 
-            <div class="metric">
-                <span>FPS</span>
-                <span class="metric-value" id="fpsDisplay">--</span>
-            </div>
-
-            <div class="gesture-box" id="gestureBox">
-                Waiting for hand...
-            </div>
-
-            <div class="button-group">
-                <button class="btn active" id="btnSkeleton">Toggle Skeleton</button>
-                <button class="btn active" id="btnOverlay">Overlay Coordinates</button>
-                <button class="btn" id="btnPinchZoom">Toggle Pinch Zoom</button>
-                <button class="btn" id="btnIronman" style="border-color: #ef4444; color: #ef4444; font-weight: 600;">Assemble Ironman</button>
-                <button class="btn" id="btnGlobe" style="border-color: #3b82f6; color: #3b82f6; font-weight: 600;">Globe Mode</button>
-                <button class="btn" id="btnReset" style="border-color: #94a3b8; color: #94a3b8;">Reset Style</button>
+            <!-- Total Fingers Panel -->
+            <div class="total-fingers-panel" id="totalFingersPanel">
+                <div style="font-size: 0.75rem; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">Total Fingers Open</div>
+                <div class="total-fingers-value" id="totalFingersDisplay">--</div>
             </div>
         </div>
 
-        <!-- Right Coordinates Panel -->
-        <div class="panel coords-panel">
-            <div style="font-weight: 600; margin-bottom: 16px; font-size: 1rem;">Key Landmarks</div>
+        <!-- Left Sidebar Panel -->
+        <div class="sidebar" id="sidebarPanel">
+            <div class="sidebar-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span style="font-weight: 700; letter-spacing: 1px; font-size: 1.1rem; color: #fff;">HAND TRACKER</span>
+                </div>
+                <svg class="header-graph" width="40" height="16" viewBox="0 0 40 16" fill="none">
+                    <path d="M1 8H6L9 2L13 14L16 6L19 10L22 8H39" stroke="rgba(0, 240, 255, 0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
 
-            <div class="coord-row">
-                <span class="coord-label">
-                    <div class="coord-dot" style="background: #ef4444;"></div>Thumb
-                </span>
-                <span class="val" id="valThumb">--</span>
+            <div class="fps-container">
+                <span style="color: #64748b; font-size: 0.85rem; font-weight: 500;">FPS</span>
+                <span class="fps-badge" id="fpsDisplay">--</span>
             </div>
-            <div class="coord-row">
-                <span class="coord-label">
-                    <div class="coord-dot" style="background: #38bdf8;"></div>Index
-                </span>
-                <span class="val" id="valIndex">--</span>
-            </div>
-            <div class="coord-row">
-                <span class="coord-label">
-                    <div class="coord-dot" style="background: #a855f7;"></div>Middle
-                </span>
-                <span class="val" id="valMiddle">--</span>
-            </div>
-            <div class="coord-row">
-                <span class="coord-label">
-                    <div class="coord-dot" style="background: #f59e0b;"></div>Ring
-                </span>
-                <span class="val" id="valRing">--</span>
-            </div>
-            <div class="coord-row">
-                <span class="coord-label">
-                    <div class="coord-dot" style="background: #ec4899;"></div>Pinky
-                </span>
-                <span class="val" id="valPinky">--</span>
-            </div>
-            <div class="coord-row"
-                style="margin-top: 16px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 16px;">
-                <span class="coord-label" style="color: white;">Pinch Dist.</span>
-                <span class="val" id="valPinch" style="color: var(--accent); font-weight: bold;">--</span>
-            </div>
-        </div>
 
-        <!-- Total Fingers Panel -->
-        <div class="panel total-fingers-panel">
-            <div style="font-size: 0.9rem; color: #94a3b8; font-weight: 500;">Total Fingers Open</div>
-            <div class="total-fingers-value" id="totalFingersDisplay">--</div>
+            <div style="margin-top: 16px;">
+                <span class="section-label">Tracking</span>
+                <div class="tracking-indicator">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M10 10.5V5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v9"/><path d="M6 13V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v10c0 5.5 4.5 10 10 10h1a10 10 0 0 0 10-10v-3.5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2V11"/></svg>
+                    <span id="gestureBoxText">TRACKING FINGERS</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 8px;">
+                <span class="section-label">View Options</span>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="sidebar-btn btn-view-opt active" id="btnSkeleton">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="4" cy="12" r="2"/><circle cx="12" cy="4" r="2"/><line x1="5.5" y1="10.5" x2="10.5" y2="5.5"/></svg>
+                        <span>Toggle Skeleton</span>
+                    </button>
+                    <button class="sidebar-btn btn-view-opt active" id="btnOverlay">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="5"/><line x1="8" y1="1" x2="8" y2="15"/><line x1="1" y1="8" x2="15" y2="8"/></svg>
+                        <span>Overlay Coordinates</span>
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <span class="section-label">Tools</span>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="sidebar-btn btn-tool-zoom" id="btnPinchZoom">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="4"/><line x1="10" y1="10" x2="14" y2="14"/><line x1="7" y1="5" x2="7" y2="9"/><line x1="5" y1="7" x2="9" y2="7"/></svg>
+                        <span>Toggle Pinch Zoom</span>
+                    </button>
+                    <button class="sidebar-btn btn-tool-ironman" id="btnIronman">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 7v6c0 5.25 3.75 10.12 8 12 4.25-1.88 8-6.75 8-12V7l-8-5z"/><path d="M8 11h2v2H8zm6 0h2v2h-2z"/><path d="M9 16h6"/></svg>
+                        <span>Assemble Ironman</span>
+                    </button>
+                    <button class="sidebar-btn btn-tool-globe" id="btnGlobe">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="7"/><line x1="1" y1="8" x2="15" y2="8"/><path d="M8 1a10.9 10.9 0 0 1 3.5 7 10.9 10.9 0 0 1-3.5 7 10.9 10.9 0 0 1-3.5-7 10.9 10.9 0 0 1 3.5-7z"/></svg>
+                        <span>Globe Mode</span>
+                    </button>
+                    <button class="sidebar-btn btn-tool-reset" id="btnReset">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 8A6 6 0 1 1 8 2v0"/><path d="M10 4L8 2l2-2"/></svg>
+                        <span>Reset Style</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -450,14 +536,7 @@
         const loadingOverlay = document.getElementById('loadingOverlay');
         const statusDot = document.getElementById('statusDot');
         const fpsDisplay = document.getElementById('fpsDisplay');
-        const gestureBox = document.getElementById('gestureBox');
-
-        const valThumb = document.getElementById('valThumb');
-        const valIndex = document.getElementById('valIndex');
-        const valMiddle = document.getElementById('valMiddle');
-        const valRing = document.getElementById('valRing');
-        const valPinky = document.getElementById('valPinky');
-        const valPinch = document.getElementById('valPinch');
+        const gestureBoxText = document.getElementById('gestureBoxText');
         const totalFingersDisplay = document.getElementById('totalFingersDisplay');
 
         // --- State ---
@@ -488,17 +567,17 @@
         // --- Controls ---
         document.getElementById('btnSkeleton').addEventListener('click', (e) => {
             isSkeletonEnabled = !isSkeletonEnabled;
-            e.target.classList.toggle('active', isSkeletonEnabled);
+            e.currentTarget.classList.toggle('active', isSkeletonEnabled);
         });
 
         document.getElementById('btnOverlay').addEventListener('click', (e) => {
             isOverlayEnabled = !isOverlayEnabled;
-            e.target.classList.toggle('active', isOverlayEnabled);
+            e.currentTarget.classList.toggle('active', isOverlayEnabled);
         });
 
         document.getElementById('btnPinchZoom').addEventListener('click', (e) => {
             isPinchZoomEnabled = !isPinchZoomEnabled;
-            e.target.classList.toggle('active', isPinchZoomEnabled);
+            e.currentTarget.classList.toggle('active', isPinchZoomEnabled);
             if (!isPinchZoomEnabled) prevGlobalPinchDist = -1;
         });
 
@@ -509,9 +588,7 @@
         
         btnToggleUI.addEventListener('click', () => {
              isUIVisible = !isUIVisible;
-             document.querySelector('.info-panel').style.display = isUIVisible ? 'block' : 'none';
-             document.querySelector('.coords-panel').style.display = isUIVisible ? 'block' : 'none';
-             document.querySelector('.total-fingers-panel').style.display = isUIVisible ? 'block' : 'none';
+             document.body.classList.toggle('ui-collapsed', !isUIVisible);
         });
 
         function initIronmanPieces() {
@@ -533,32 +610,41 @@
             if (ironState === 'none') {
                 ironState = 'incoming';
                 globeMode = false;
-                btnGlobe.style.background = 'rgba(255, 255, 255, 0.05)';
-                btnGlobe.style.color = '#3b82f6';
+                btnGlobe.classList.remove('active');
                 ironStartMs = performance.now();
                 repulsorStartMs = performance.now();
                 initIronmanPieces();
-                btnIronman.style.background = '#ef4444';
-                btnIronman.style.color = 'white';
+                btnIronman.classList.add('active');
+            } else {
+                ironState = 'none';
+                btnIronman.classList.remove('active');
             }
         });
         
         btnGlobe.addEventListener('click', () => {
-             globeMode = true;
-             ironState = 'none';
-             btnGlobe.style.background = '#3b82f6';
-             btnGlobe.style.color = 'white';
-             btnIronman.style.background = 'rgba(255, 255, 255, 0.05)';
-             btnIronman.style.color = '#ef4444';
+             globeMode = !globeMode;
+             if (globeMode) {
+                 ironState = 'none';
+                 btnIronman.classList.remove('active');
+                 btnGlobe.classList.add('active');
+             } else {
+                 btnGlobe.classList.remove('active');
+             }
         });
 
         btnReset.addEventListener('click', () => {
             ironState = 'none';
             globeMode = false;
-            btnIronman.style.background = 'rgba(255, 255, 255, 0.05)';
-            btnIronman.style.color = '#ef4444';
-            btnGlobe.style.background = 'rgba(255, 255, 255, 0.05)';
-            btnGlobe.style.color = '#3b82f6';
+            isSkeletonEnabled = true;
+            isOverlayEnabled = true;
+            isPinchZoomEnabled = false;
+            
+            btnIronman.classList.remove('active');
+            btnGlobe.classList.remove('active');
+            document.getElementById('btnSkeleton').classList.add('active');
+            document.getElementById('btnOverlay').classList.add('active');
+            document.getElementById('btnPinchZoom').classList.remove('active');
+            
             zoomScale = 1.0;
             document.querySelector('.video-wrapper').style.transform = `scale(1)`;
         });
@@ -890,7 +976,7 @@
             let primaryGesture = null;
 
             // UI details will reflect the first detected hand
-            let primaryThumbTip = null, primaryIndexTip = null, primaryMiddleTip = null, primaryRingTip = null, primaryPinkyTip = null, primaryPinchDist = 0;
+            let primaryThumbTip = null, primaryIndexTip = null, primaryMiddleTip = null, primaryPinchDist = 0;
 
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 handDetected = true;
@@ -902,15 +988,11 @@
                     const thumbTip = landmarks[4];
                     const indexTip = landmarks[8];
                     const middleTip = landmarks[12];
-                    const ringTip = landmarks[16];
-                    const pinkyTip = landmarks[20];
 
                     if (i === 0) {
                         primaryThumbTip = thumbTip;
                         primaryIndexTip = indexTip;
                         primaryMiddleTip = middleTip;
-                        primaryRingTip = ringTip;
-                        primaryPinkyTip = pinkyTip;
                         primaryPinchDist = calculateDistance(thumbTip, indexTip);
                         primaryGesture = interpretGesture(landmarks);
                         
@@ -954,9 +1036,9 @@
                         }
 
                         const specials = [
-                            { pt: thumbTip, color: '#ef4444' }, // Red
-                            { pt: indexTip, color: '#38bdf8' }, // Blue
-                            { pt: middleTip, color: '#a855f7' } // Purple
+                            { pt: thumbTip, color: '#ff3b30' }, // Red (Thumb)
+                            { pt: indexTip, color: '#4cd964' }, // Green (Index)
+                            { pt: middleTip, color: '#af52de' } // Purple/Magenta (Middle)
                         ];
 
                         specials.forEach(s => {
@@ -997,27 +1079,17 @@
                 // --- UI Updates ---
                 totalFingersDisplay.textContent = totalFingersOpen;
 
-                if (primaryThumbTip) {
-                    valThumb.textContent = `${primaryThumbTip.x.toFixed(2)}, ${primaryThumbTip.y.toFixed(2)}`;
-                    valIndex.textContent = `${primaryIndexTip.x.toFixed(2)}, ${primaryIndexTip.y.toFixed(2)}`;
-                    valMiddle.textContent = `${primaryMiddleTip.x.toFixed(2)}, ${primaryMiddleTip.y.toFixed(2)}`;
-                    valRing.textContent = `${primaryRingTip.x.toFixed(2)}, ${primaryRingTip.y.toFixed(2)}`;
-                    valPinky.textContent = `${primaryPinkyTip.x.toFixed(2)}, ${primaryPinkyTip.y.toFixed(2)}`;
-                    valPinch.textContent = primaryPinchDist.toFixed(3);
-                }
-
-                gestureBox.className = 'gesture-box';
-                if (primaryGesture && primaryGesture.type !== 'none' && primaryGesture.type !== 'open' && primaryGesture.type !== 'pinch') {
-                    gestureBox.textContent = `✨ ${primaryGesture.text}`;
-                    gestureBox.classList.add('sign');
-                } else if (anyPinching) {
-                    gestureBox.textContent = "🤏 Pinch Detected";
-                    gestureBox.classList.add('pinch');
-                } else if (totalFingersOpen > 0) {
-                    gestureBox.textContent = "🖐️ Tracking Fingers";
-                    gestureBox.classList.add('open');
-                } else {
-                    gestureBox.textContent = "Tracking...";
+                // Update Gesture State Text in Sidebar
+                if (gestureBoxText) {
+                    if (primaryGesture && primaryGesture.type !== 'none' && primaryGesture.type !== 'open' && primaryGesture.type !== 'pinch') {
+                        gestureBoxText.textContent = primaryGesture.text.toUpperCase();
+                    } else if (anyPinching) {
+                        gestureBoxText.textContent = "PINCH DETECTED";
+                    } else if (totalFingersOpen > 0) {
+                        gestureBoxText.textContent = "TRACKING FINGERS";
+                    } else {
+                        gestureBoxText.textContent = "TRACKING...";
+                    }
                 }
 
                 // Restore canvas context to un-mirror for text drawing
@@ -1055,9 +1127,10 @@
                             canvasCtx.fillText(text, realX, realY);
                         };
 
-                        drawFloatingText(thumbTip, `T(${thumbTip.x.toFixed(2)})`, 15, -5);
-                        drawFloatingText(indexTip, `I(${indexTip.x.toFixed(2)})`, 15, -5);
-                        drawFloatingText(middleTip, `M(${middleTip.x.toFixed(2)})`, 15, -5);
+                        // Use height above screen bottom: 1 - lm.y
+                        drawFloatingText(thumbTip, `T(${(1 - thumbTip.y).toFixed(2)})`, 15, -5);
+                        drawFloatingText(indexTip, `I(${(1 - indexTip.y).toFixed(2)})`, 15, -5);
+                        drawFloatingText(middleTip, `M(${(1 - middleTip.y).toFixed(2)})`, 15, -5);
                     }
                 }
             } else {
@@ -1066,12 +1139,7 @@
                 drawHearts(canvasCtx);
 
                 if (isLoaded) {
-                    gestureBox.className = 'gesture-box';
-                    gestureBox.textContent = "Waiting for hands...";
-                    valThumb.textContent = "--";
-                    valIndex.textContent = "--";
-                    valMiddle.textContent = "--";
-                    valPinch.textContent = "--";
+                    if (gestureBoxText) gestureBoxText.textContent = "WAITING FOR HANDS...";
                     totalFingersDisplay.textContent = "--";
                 }
             }
