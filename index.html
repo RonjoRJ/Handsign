@@ -16,6 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
     <style>
         :root {
             --bg-color: #030812;
@@ -126,12 +127,6 @@
         .ui-collapsed .sidebar {
             transform: translateX(-360px);
             opacity: 0;
-            pointer-events: none;
-        }
-
-        .ui-collapsed .total-fingers-panel {
-            opacity: 0;
-            transform: translate(-50%, 20px);
             pointer-events: none;
         }
 
@@ -258,6 +253,20 @@
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
         }
 
+        .btn-tool-accessorize {
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #a855f7;
+        }
+        .btn-tool-accessorize:hover {
+            background: rgba(168, 85, 247, 0.08);
+        }
+        .btn-tool-accessorize.active {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+        }
+
         .btn-tool-globe {
             border: 1px solid rgba(59, 130, 246, 0.3);
             color: #3b82f6;
@@ -363,32 +372,38 @@
             border-top: none;
         }
 
-        /* Total Fingers Panel */
-        .total-fingers-panel {
+        /* Emotion Panel */
+        .emotion-panel {
             position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 24px;
+            right: 24px;
             background: rgba(3, 10, 20, 0.65);
-            border: 1px solid var(--accent);
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid rgba(0, 240, 255, 0.15);
             border-radius: 12px;
-            padding: 12px 48px;
-            box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.15), 0 10px 30px rgba(0,0,0,0.6);
-            z-index: 15;
+            padding: 16px 24px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(0, 240, 255, 0.05);
+            z-index: 20;
             text-align: center;
-            min-width: 180px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 140px;
+            transition: all 0.4s ease;
         }
-        
-        .total-fingers-value {
-            font-size: 2.8rem;
+
+        .emotion-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .emotion-value {
+            font-size: 1.2rem;
+            font-weight: 700;
             color: var(--accent);
-            font-family: monospace;
-            font-weight: 800;
-            display: block;
-            margin-top: 4px;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
-            line-height: 1;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.4);
         }
 
         /* Loading Overlay */
@@ -425,6 +440,133 @@
             color: #94a3b8;
             font-weight: 500;
         }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(3, 8, 15, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: rgba(10, 15, 30, 0.85);
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            padding: 32px;
+            width: 400px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 240, 255, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-title {
+            color: var(--accent);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-top: 0;
+            margin-bottom: 24px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+
+        .accessory-grid {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 32px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .accessory-item {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .accessory-item:hover {
+            border-color: rgba(168, 85, 247, 0.5);
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        .accessory-item.selected {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.2);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 16px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-reset {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+        }
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #e2e8f0;
+        }
+
+        .btn-proceed {
+            background: var(--accent);
+            border: 1px solid var(--accent);
+            color: #030812;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+        .btn-proceed:hover {
+            background: #00c0cc;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+        }
     </style>
 </head>
 
@@ -456,10 +598,10 @@
                 <canvas class="output_canvas" id="canvas"></canvas>
             </div>
 
-            <!-- Total Fingers Panel -->
-            <div class="total-fingers-panel" id="totalFingersPanel">
-                <div style="font-size: 0.75rem; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">Total Fingers Open</div>
-                <div class="total-fingers-value" id="totalFingersDisplay">--</div>
+            <!-- Emotion Container -->
+            <div class="emotion-panel" id="emotionPanel">
+                <div class="emotion-title">EMOTION</div>
+                <div class="emotion-value" id="emotionDisplay">Neutral 😐</div>
             </div>
         </div>
 
@@ -486,6 +628,10 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M10 10.5V5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v9"/><path d="M6 13V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v10c0 5.5 4.5 10 10 10h1a10 10 0 0 0 10-10v-3.5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2V11"/></svg>
                     <span id="gestureBoxText">TRACKING FINGERS</span>
                 </div>
+                <div id="sidebarTotalFingersPanel" style="display: none; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(0, 240, 255, 0.2); background: rgba(0, 240, 255, 0.02); margin-bottom: 16px; transition: all 0.3s ease;">
+                    <span style="font-size: 0.8rem; font-weight: 600; color: var(--accent); letter-spacing: 1px;">TOTAL FINGERS OPEN</span>
+                    <span id="totalFingersDisplay" style="font-size: 1.2rem; font-weight: 800; color: var(--accent); font-family: monospace; text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);">--</span>
+                </div>
             </div>
 
             <div style="margin-top: 8px;">
@@ -494,10 +640,6 @@
                     <button class="sidebar-btn btn-view-opt active" id="btnSkeleton">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="4" cy="12" r="2"/><circle cx="12" cy="4" r="2"/><line x1="5.5" y1="10.5" x2="10.5" y2="5.5"/></svg>
                         <span>Toggle Skeleton</span>
-                    </button>
-                    <button class="sidebar-btn btn-view-opt active" id="btnOverlay">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="5"/><line x1="8" y1="1" x2="8" y2="15"/><line x1="1" y1="8" x2="15" y2="8"/></svg>
-                        <span>Overlay Coordinates</span>
                     </button>
                 </div>
             </div>
@@ -513,6 +655,10 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 7v6c0 5.25 3.75 10.12 8 12 4.25-1.88 8-6.75 8-12V7l-8-5z"/><path d="M8 11h2v2H8zm6 0h2v2h-2z"/><path d="M9 16h6"/></svg>
                         <span>Assemble Ironman</span>
                     </button>
+                    <button class="sidebar-btn btn-tool-accessorize" id="btnAccessorize">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"/><circle cx="7" cy="12" r="5"/><circle cx="17" cy="12" r="5"/></svg>
+                        <span>Accessorize (beta)</span>
+                    </button>
                     <button class="sidebar-btn btn-tool-globe" id="btnGlobe">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="7"/><line x1="1" y1="8" x2="15" y2="8"/><path d="M8 1a10.9 10.9 0 0 1 3.5 7 10.9 10.9 0 0 1-3.5 7 10.9 10.9 0 0 1-3.5-7 10.9 10.9 0 0 1 3.5-7z"/></svg>
                         <span>Globe Mode</span>
@@ -525,6 +671,33 @@
             </div>
         </div>
 
+        </div>
+        
+        <!-- Accessorize Modal -->
+        <div class="modal-overlay" id="accessorizeModal">
+            <div class="modal-content">
+                <button class="modal-close" id="modalClose">&times;</button>
+                <h2 class="modal-title">ACCESSORIZE</h2>
+                
+                <div class="accessory-grid">
+                    <div class="accessory-item" id="accGlasses">
+                        <svg width="60" height="24" viewBox="0 0 60 24" fill="none">
+                            <rect x="2" y="4" width="22" height="16" rx="4" fill="#111" stroke="#333" stroke-width="2"/>
+                            <rect x="36" y="4" width="22" height="16" rx="4" fill="#111" stroke="#333" stroke-width="2"/>
+                            <path d="M24 10 Q 30 6 36 10" stroke="#333" stroke-width="3" fill="none"/>
+                            <line x1="0" y1="8" x2="2" y2="8" stroke="#333" stroke-width="3"/>
+                            <line x1="58" y1="8" x2="60" y2="8" stroke="#333" stroke-width="3"/>
+                        </svg>
+                        <div style="margin-top: 8px; font-size: 0.8rem; color: #94a3b8;">Wafer Glasses</div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="modal-btn btn-reset" id="modalReset">RESET</button>
+                    <button class="modal-btn btn-proceed" id="modalProceed">PROCEED</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -532,6 +705,9 @@
         const videoElement = document.querySelector('.input_video');
         const canvasElement = document.getElementById('canvas');
         const canvasCtx = canvasElement.getContext('2d');
+        
+        const glassesImg = new Image();
+        glassesImg.src = 'glasses.png';
 
         const loadingOverlay = document.getElementById('loadingOverlay');
         const statusDot = document.getElementById('statusDot');
@@ -539,9 +715,23 @@
         const gestureBoxText = document.getElementById('gestureBoxText');
         const totalFingersDisplay = document.getElementById('totalFingersDisplay');
 
+        // --- Global State ---
+        let latestHandResults = null;
+        let latestFaceResults = null;
+
+        // Exposed facial landmarks coordinates (x, y, z in normalized coordinates)
+        let faceData = {
+            noseTip: null,
+            leftEyeCenter: null,
+            rightEyeCenter: null,
+            chin: null,
+            forehead: null,
+            leftEar: null,
+            rightEar: null
+        };
+
         // --- State ---
         let isSkeletonEnabled = true;
-        let isOverlayEnabled = true;
         let isLoaded = false;
         let isUIVisible = true;
         let isPinchZoomEnabled = false;
@@ -560,6 +750,10 @@
 
         let hearts = [];
 
+        // --- Modal & Accessory State ---
+        let selectedAccessory = null;
+        let appliedAccessory = null;
+
         // FPS Tracker
         let lastTime = 0;
         let frames = 0;
@@ -568,11 +762,6 @@
         document.getElementById('btnSkeleton').addEventListener('click', (e) => {
             isSkeletonEnabled = !isSkeletonEnabled;
             e.currentTarget.classList.toggle('active', isSkeletonEnabled);
-        });
-
-        document.getElementById('btnOverlay').addEventListener('click', (e) => {
-            isOverlayEnabled = !isOverlayEnabled;
-            e.currentTarget.classList.toggle('active', isOverlayEnabled);
         });
 
         document.getElementById('btnPinchZoom').addEventListener('click', (e) => {
@@ -586,9 +775,54 @@
         const btnReset = document.getElementById('btnReset');
         const btnToggleUI = document.getElementById('btnToggleUI');
         
+        const btnAccessorize = document.getElementById('btnAccessorize');
+        const accessorizeModal = document.getElementById('accessorizeModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalReset = document.getElementById('modalReset');
+        const modalProceed = document.getElementById('modalProceed');
+        const accGlasses = document.getElementById('accGlasses');
+
         btnToggleUI.addEventListener('click', () => {
              isUIVisible = !isUIVisible;
              document.body.classList.toggle('ui-collapsed', !isUIVisible);
+        });
+
+        btnAccessorize.addEventListener('click', () => {
+            accessorizeModal.classList.add('active');
+            btnAccessorize.classList.add('active');
+        });
+
+        const closeModal = () => {
+            accessorizeModal.classList.remove('active');
+            if (!appliedAccessory) {
+                btnAccessorize.classList.remove('active');
+            }
+        };
+
+        modalClose.addEventListener('click', closeModal);
+
+        accGlasses.addEventListener('click', () => {
+            accGlasses.classList.toggle('selected');
+            if (accGlasses.classList.contains('selected')) {
+                selectedAccessory = 'wafer_glasses';
+            } else {
+                selectedAccessory = null;
+            }
+        });
+
+        modalReset.addEventListener('click', () => {
+            selectedAccessory = null;
+            appliedAccessory = null;
+            accGlasses.classList.remove('selected');
+            btnAccessorize.classList.remove('active');
+        });
+
+        modalProceed.addEventListener('click', () => {
+            appliedAccessory = selectedAccessory;
+            if (!appliedAccessory) {
+                btnAccessorize.classList.remove('active');
+            }
+            closeModal();
         });
 
         function initIronmanPieces() {
@@ -636,14 +870,17 @@
             ironState = 'none';
             globeMode = false;
             isSkeletonEnabled = true;
-            isOverlayEnabled = true;
             isPinchZoomEnabled = false;
             
             btnIronman.classList.remove('active');
             btnGlobe.classList.remove('active');
             document.getElementById('btnSkeleton').classList.add('active');
-            document.getElementById('btnOverlay').classList.add('active');
             document.getElementById('btnPinchZoom').classList.remove('active');
+            
+            btnAccessorize.classList.remove('active');
+            selectedAccessory = null;
+            appliedAccessory = null;
+            accGlasses.classList.remove('selected');
             
             zoomScale = 1.0;
             document.querySelector('.video-wrapper').style.transform = `scale(1)`;
@@ -669,7 +906,7 @@
                 '0,17': 'black'
             };
 
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 1.5;
             HAND_CONNECTIONS.forEach(cn => {
                 const key = `${cn[0]},${cn[1]}`;
                 const color = colorMap[key] || 'white';
@@ -935,9 +1172,360 @@
             }
         }
         window.addEventListener('resize', resizeCanvas);
+        
+        // ==========================================
+        // Utility & Feature Extraction Functions
+        // ==========================================
+        
+        // Extract and expose specific facial landmarks for downstream tasks
+        function updateFaceData(landmarks) {
+            if (!landmarks) return;
+            faceData.noseTip = landmarks[4];
+            faceData.leftEyeCenter = landmarks[159];
+            faceData.rightEyeCenter = landmarks[386];
+            faceData.chin = landmarks[152];
+            faceData.forehead = landmarks[10];
+            faceData.leftEar = landmarks[234];
+            faceData.rightEar = landmarks[454];
+        }
 
-        // --- Main Rendering Loop (Called by MediaPipe) ---
-        function onResults(results) {
+        // Clear coordinates when face is lost
+        function clearFaceData() {
+            faceData.noseTip = null;
+            faceData.leftEyeCenter = null;
+            faceData.rightEyeCenter = null;
+            faceData.chin = null;
+            faceData.forehead = null;
+            faceData.leftEar = null;
+            faceData.rightEar = null;
+        }
+
+        // ==========================================
+        // MediaPipe Tracking Callbacks
+        // ==========================================
+
+        function onHandResults(results) {
+            latestHandResults = results;
+        }
+
+        function onFaceResults(results) {
+            latestFaceResults = results;
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                updateFaceData(results.multiFaceLandmarks[0]);
+            } else {
+                clearFaceData();
+            }
+        }
+
+        // ==========================================
+        // Rendering Module
+        // ==========================================
+
+        function detectEmotion(landmarks) {
+            if (!landmarks || landmarks.length < 468) return "Neutral 😐";
+            
+            const p = (i) => landmarks[i];
+            
+            // Face bounding box for normalization (forehead to chin)
+            const faceHeight = calculateDistance(p(10), p(152));
+            if (faceHeight === 0) return "Neutral 😐";
+
+            // Mouth features
+            const cornersY = (p(61).y + p(291).y) / 2;
+            const centerMouthY = (p(13).y + p(14).y) / 2;
+            const emotionDiff = (centerMouthY - cornersY) / faceHeight; // >0 smile, <0 sad
+            const mouthOpen = calculateDistance(p(13), p(14)) / faceHeight;
+
+            // Eyebrow features
+            // Left brow: inner=107, outer=46. Right brow: inner=336, outer=276
+            const browSlopeLeft = (p(107).y - p(46).y) / faceHeight; 
+            const browSlopeRight = (p(336).y - p(276).y) / faceHeight;
+            const avgBrowSlope = (browSlopeLeft + browSlopeRight) / 2; 
+            // avgBrowSlope > 0 => Angry (inner lower than outer)
+            // avgBrowSlope < 0 => Sad/Fear (inner higher than outer)
+
+            // Brow Heights for asymmetry (Cunning)
+            const leftBrowDist = calculateDistance(p(105), p(159)) / faceHeight;
+            const rightBrowDist = calculateDistance(p(334), p(386)) / faceHeight;
+            const browAsymmetry = Math.abs(leftBrowDist - rightBrowDist);
+
+            // Eye Openness (for Laughter)
+            const leftEyeOpen = calculateDistance(p(159), p(145)) / faceHeight;
+            const rightEyeOpen = calculateDistance(p(386), p(374)) / faceHeight;
+            const avgEyeOpen = (leftEyeOpen + rightEyeOpen) / 2;
+
+            // 2. LAUGHTER: Big smile, mouth open, eyes squinting/closed
+            if (emotionDiff > 0.015 && mouthOpen > 0.04 && avgEyeOpen < 0.025) {
+                return "LAUGHTER 😂";
+            }
+
+            // 3. ANGER: Inner brows lower than outer (positive slope)
+            if (avgBrowSlope > 0.005 && emotionDiff < 0.01) {
+                return "ANGER 😡";
+            }
+
+            // 4. FEAR: Inner brows higher (negative slope), mouth wide open
+            if (avgBrowSlope < -0.005 && mouthOpen > 0.04 && emotionDiff < 0.01) {
+                return "FEAR 😨";
+            }
+
+            // 5. SADNESS: Inner brows higher, mouth frowning
+            if (avgBrowSlope < -0.005 && emotionDiff < -0.01) {
+                return "SADNESS 😢";
+            }
+
+            // 6. Smile: Normal smile
+            if (emotionDiff > 0.015) {
+                return "Smile 😊";
+            }
+
+            return "Neutral 😐";
+        }
+
+        // Render Face Mesh
+        function drawFaceMesh(ctx, results) {
+            const emotionDisplay = document.getElementById('emotionDisplay');
+            if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+                if (emotionDisplay) emotionDisplay.textContent = "Neutral 😐";
+                return;
+            }
+
+            const landmarks = results.multiFaceLandmarks[0];
+            
+            if (emotionDisplay) {
+                emotionDisplay.textContent = detectEmotion(landmarks);
+            }
+
+            const width = canvasElement.width;
+            const height = canvasElement.height;
+
+            // 1. Draw 468 points as small circles
+            ctx.fillStyle = 'rgba(0, 240, 255, 0.35)'; // Semi-transparent cyan
+            for (let i = 0; i < landmarks.length; i++) {
+                const lm = landmarks[i];
+                ctx.beginPath();
+                ctx.arc(lm.x * width, lm.y * height, 1.5, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            // 2. Overlay key landmarks with distinct colored markers
+            const keyPoints = [
+                { pt: faceData.noseTip, color: '#ff0055' },      // Red nose tip
+                { pt: faceData.leftEyeCenter, color: '#00ff88' }, // Green left pupil/eye center
+                { pt: faceData.rightEyeCenter, color: '#00ff88' },// Green right pupil/eye center
+                { pt: faceData.chin, color: '#00f0ff' },          // Cyan chin
+                { pt: faceData.forehead, color: '#ffff00' },      // Yellow forehead
+                { pt: faceData.leftEar, color: '#ff00ff' },       // Magenta left ear region
+                { pt: faceData.rightEar, color: '#ff00ff' }       // Magenta right ear region
+            ];
+
+            keyPoints.forEach(kp => {
+                if (kp.pt) {
+                    ctx.beginPath();
+                    ctx.arc(kp.pt.x * width, kp.pt.y * height, 4.5, 0, 2 * Math.PI);
+                    ctx.fillStyle = kp.color;
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+            });
+
+            // Render Glasses
+            if (appliedAccessory === 'wafer_glasses' && glassesImg.complete) {
+                const leftEye = landmarks[133];
+                const rightEye = landmarks[362];
+                const leftTemple = landmarks[234];
+                const rightTemple = landmarks[454];
+                
+                // Use temples for width
+                const dx = rightTemple.x - leftTemple.x;
+                const dy = rightTemple.y - leftTemple.y;
+                const glassWidth = Math.sqrt(dx * dx + dy * dy) * width * 1.15; // Slightly wider than face
+                const angle = Math.atan2(dy, dx);
+                
+                // Center between eyes
+                const cx = (leftEye.x + rightEye.x) / 2 * width;
+                const cy = (leftEye.y + rightEye.y) / 2 * height;
+                
+                const glassHeight = glassWidth * (glassesImg.height / glassesImg.width);
+                
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(angle);
+                
+                // Draw Image (slightly lowered to rest on the nose)
+                const yOffset = glassHeight * 0.08;
+                ctx.drawImage(glassesImg, -glassWidth/2, -glassHeight/2 + yOffset, glassWidth, glassHeight);
+                
+                ctx.restore();
+            }
+        }
+
+        // Render Hand Landmarks and Gestures
+        function drawHands(ctx, results) {
+            if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) return;
+
+            let totalFingersOpen = 0;
+            let anyPinching = false;
+            let primaryThumbTip = null, primaryIndexTip = null, primaryMiddleTip = null, primaryPinchDist = 0;
+            let primaryGesture = null;
+
+            // Process logic and draw skeletons for all hands
+            for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                const landmarks = results.multiHandLandmarks[i];
+
+                const thumbTip = landmarks[4];
+                const indexTip = landmarks[8];
+                const middleTip = landmarks[12];
+
+                if (i === 0) {
+                    primaryThumbTip = thumbTip;
+                    primaryIndexTip = indexTip;
+                    primaryMiddleTip = middleTip;
+                    primaryPinchDist = calculateDistance(thumbTip, indexTip);
+                    primaryGesture = interpretGesture(landmarks);
+                    
+                    // Pinch Zoom mapping: pinch in (distance decreases) -> zoom out. Pinch out -> zoom in.
+                    if (isPinchZoomEnabled) {
+                        if (prevGlobalPinchDist !== -1) {
+                            let delta = primaryPinchDist - prevGlobalPinchDist;
+                            zoomScale += delta * 5.0; 
+                            zoomScale = Math.max(0.5, Math.min(zoomScale, 4.0));
+                        }
+                        prevGlobalPinchDist = primaryPinchDist;
+                    }
+
+                    if (primaryGesture.type === 'ily') {
+                        if (Math.random() > 0.5) {
+                            hearts.push({
+                                x: Math.random() * canvasElement.width,
+                                y: canvasElement.height + 50,
+                                speed: 2 + Math.random() * 5,
+                                size: 20 + Math.random() * 40
+                            });
+                        }
+                    }
+                }
+
+                const pinchDist = calculateDistance(thumbTip, indexTip);
+                if (pinchDist < 0.08) anyPinching = true;
+
+                totalFingersOpen += countFingersOpen(landmarks);
+
+                if (ironState === 'none') {
+                    if (isSkeletonEnabled) {
+                        drawColoredConnectors(ctx, landmarks);
+
+                        drawLandmarks(ctx, landmarks, {
+                            color: 'rgba(148, 163, 184, 0.8)',
+                            fillColor: '#0f172a',
+                            lineWidth: 1,
+                            radius: 4
+                        });
+                    }
+
+                    const specials = [
+                        { pt: thumbTip, color: '#ff3b30' }, // Red (Thumb)
+                        { pt: indexTip, color: '#4cd964' }, // Green (Index)
+                        { pt: middleTip, color: '#af52de' } // Purple/Magenta (Middle)
+                    ];
+
+                    specials.forEach(s => {
+                        ctx.beginPath();
+                        ctx.arc(s.pt.x * canvasElement.width, s.pt.y * canvasElement.height, 8, 0, 2 * Math.PI);
+                        ctx.fillStyle = s.color;
+                        ctx.fill();
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = '#fff';
+                        ctx.stroke();
+                    });
+
+                    if (pinchDist < 0.08) {
+                        ctx.beginPath();
+                        ctx.moveTo(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height);
+                        ctx.lineTo(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height);
+                        ctx.strokeStyle = '#38bdf8';
+                        ctx.lineWidth = 4;
+                        ctx.stroke();
+
+                        const midX = (thumbTip.x + indexTip.x) / 2 * canvasElement.width;
+                        const midY = (thumbTip.y + indexTip.y) / 2 * canvasElement.height;
+
+                        ctx.beginPath();
+                        ctx.arc(midX, midY, 15, 0, 2 * Math.PI);
+                        ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
+                        ctx.fill();
+                    }
+                } else {
+                    drawIronman(ctx, landmarks, ironState, ironPieces, ironStartMs);
+                }
+            }
+            
+            if (globeMode && results.multiHandLandmarks.length > 0) {
+                drawGlobe(ctx, results.multiHandLandmarks);
+            }
+
+            // --- UI Updates ---
+            totalFingersDisplay.textContent = totalFingersOpen;
+
+            const sidebarTotalFingersPanel = document.getElementById('sidebarTotalFingersPanel');
+            if (sidebarTotalFingersPanel && results.multiHandLandmarks.length > 0) {
+                sidebarTotalFingersPanel.style.display = 'flex';
+            }
+
+            // Update Gesture State Text in Sidebar
+            if (gestureBoxText) {
+                if (primaryGesture && primaryGesture.type !== 'none' && primaryGesture.type !== 'open' && primaryGesture.type !== 'pinch') {
+                    gestureBoxText.textContent = primaryGesture.text.toUpperCase();
+                } else if (anyPinching) {
+                    gestureBoxText.textContent = "PINCH DETECTED";
+                } else if (totalFingersOpen > 0) {
+                    gestureBoxText.textContent = "TRACKING FINGERS";
+                } else {
+                    gestureBoxText.textContent = "TRACKING...";
+                }
+            }
+        }
+
+        // Draw overlays that shouldn't be horizontally mirrored
+        function drawUnmirroredOverlays() {
+            drawHearts(canvasCtx);
+
+            if (latestHandResults && latestHandResults.multiHandLandmarks && latestHandResults.multiHandLandmarks.length > 0) {
+                const primaryHand = latestHandResults.multiHandLandmarks[0];
+                const thumbTip = primaryHand[4];
+                const indexTip = primaryHand[8];
+                const middleTip = primaryHand[12];
+                const primaryGesture = interpretGesture(primaryHand);
+
+                if (primaryGesture && primaryGesture.type === 'fire') {
+                    const midX = (thumbTip.x + indexTip.x) / 2;
+                    const midY = (thumbTip.y + indexTip.y) / 2;
+                    
+                    const realX = canvasElement.width - (midX * canvasElement.width);
+                    const realY = (midY * canvasElement.height) - 40;
+                    
+                    canvasCtx.font = "40px Arial";
+                    canvasCtx.textAlign = "center";
+                    canvasCtx.textBaseline = "middle";
+                    canvasCtx.fillText("🔥", realX, realY);
+                }
+            } else {
+                prevGlobalPinchDist = -1;
+                if (isLoaded) {
+                    if (gestureBoxText) gestureBoxText.textContent = "WAITING FOR HANDS...";
+                    totalFingersDisplay.textContent = "--";
+                    const sidebarTotalFingersPanel = document.getElementById('sidebarTotalFingersPanel');
+                    if (sidebarTotalFingersPanel) {
+                        sidebarTotalFingersPanel.style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        // Main Rendering Loop - Combines all visuals in a single draw call
+        function renderAll() {
             // UI Initial Load Transition
             if (!isLoaded) {
                 isLoaded = true;
@@ -956,6 +1544,12 @@
                 lastTime = now;
             }
 
+            // Verify canvas size
+            if (videoElement.videoWidth && videoElement.videoHeight && 
+                (canvasElement.width !== videoElement.videoWidth || canvasElement.height !== videoElement.videoHeight)) {
+                resizeCanvas();
+            }
+
             // Prepare Canvas
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -967,185 +1561,31 @@
             canvasCtx.translate(canvasElement.width, 0);
             canvasCtx.scale(-1, 1);
 
-            // Draw the camera feed (mirrored natively here, not in CSS, to manage text orientation)
-            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            // Draw current camera frame directly from video element
+            canvasCtx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
 
-            let handDetected = false;
-            let totalFingersOpen = 0;
-            let anyPinching = false;
-            let primaryGesture = null;
-
-            // UI details will reflect the first detected hand
-            let primaryThumbTip = null, primaryIndexTip = null, primaryMiddleTip = null, primaryPinchDist = 0;
-
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                handDetected = true;
-
-                // Process logic and draw skeletons for all hands
-                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
-                    const landmarks = results.multiHandLandmarks[i];
-
-                    const thumbTip = landmarks[4];
-                    const indexTip = landmarks[8];
-                    const middleTip = landmarks[12];
-
-                    if (i === 0) {
-                        primaryThumbTip = thumbTip;
-                        primaryIndexTip = indexTip;
-                        primaryMiddleTip = middleTip;
-                        primaryPinchDist = calculateDistance(thumbTip, indexTip);
-                        primaryGesture = interpretGesture(landmarks);
-                        
-                        // Pinch Zoom mapping: pinch in (distance decreases) -> zoom out. Pinch out -> zoom in.
-                        if (isPinchZoomEnabled) {
-                            if (prevGlobalPinchDist !== -1) {
-                                let delta = primaryPinchDist - prevGlobalPinchDist;
-                                zoomScale += delta * 5.0; 
-                                zoomScale = Math.max(0.5, Math.min(zoomScale, 4.0));
-                            }
-                            prevGlobalPinchDist = primaryPinchDist;
-                        }
-
-                        if (primaryGesture.type === 'ily') {
-                            if (Math.random() > 0.5) {
-                                hearts.push({
-                                    x: Math.random() * canvasElement.width,
-                                    y: canvasElement.height + 50,
-                                    speed: 2 + Math.random() * 5,
-                                    size: 20 + Math.random() * 40
-                                });
-                            }
-                        }
-                    }
-
-                    const pinchDist = calculateDistance(thumbTip, indexTip);
-                    if (pinchDist < 0.08) anyPinching = true;
-
-                    totalFingersOpen += countFingersOpen(landmarks);
-
-                    if (ironState === 'none') {
-                        if (isSkeletonEnabled) {
-                            drawColoredConnectors(canvasCtx, landmarks);
-
-                            drawLandmarks(canvasCtx, landmarks, {
-                                color: 'rgba(148, 163, 184, 0.8)',
-                                fillColor: '#0f172a',
-                                lineWidth: 1,
-                                radius: 4
-                            });
-                        }
-
-                        const specials = [
-                            { pt: thumbTip, color: '#ff3b30' }, // Red (Thumb)
-                            { pt: indexTip, color: '#4cd964' }, // Green (Index)
-                            { pt: middleTip, color: '#af52de' } // Purple/Magenta (Middle)
-                        ];
-
-                        specials.forEach(s => {
-                            canvasCtx.beginPath();
-                            canvasCtx.arc(s.pt.x * canvasElement.width, s.pt.y * canvasElement.height, 8, 0, 2 * Math.PI);
-                            canvasCtx.fillStyle = s.color;
-                            canvasCtx.fill();
-                            canvasCtx.lineWidth = 2;
-                            canvasCtx.strokeStyle = '#fff';
-                            canvasCtx.stroke();
-                        });
-
-                        if (pinchDist < 0.08) {
-                            canvasCtx.beginPath();
-                            canvasCtx.moveTo(thumbTip.x * canvasElement.width, thumbTip.y * canvasElement.height);
-                            canvasCtx.lineTo(indexTip.x * canvasElement.width, indexTip.y * canvasElement.height);
-                            canvasCtx.strokeStyle = '#38bdf8';
-                            canvasCtx.lineWidth = 4;
-                            canvasCtx.stroke();
-
-                            const midX = (thumbTip.x + indexTip.x) / 2 * canvasElement.width;
-                            const midY = (thumbTip.y + indexTip.y) / 2 * canvasElement.height;
-
-                            canvasCtx.beginPath();
-                            canvasCtx.arc(midX, midY, 15, 0, 2 * Math.PI);
-                            canvasCtx.fillStyle = 'rgba(56, 189, 248, 0.4)';
-                            canvasCtx.fill();
-                        }
-                    } else {
-                        drawIronman(canvasCtx, landmarks, ironState, ironPieces, ironStartMs);
-                    }
-                }
-                
-                if (globeMode && results.multiHandLandmarks.length > 0) {
-                    drawGlobe(canvasCtx, results.multiHandLandmarks);
-                }
-
-                // --- UI Updates ---
-                totalFingersDisplay.textContent = totalFingersOpen;
-
-                // Update Gesture State Text in Sidebar
-                if (gestureBoxText) {
-                    if (primaryGesture && primaryGesture.type !== 'none' && primaryGesture.type !== 'open' && primaryGesture.type !== 'pinch') {
-                        gestureBoxText.textContent = primaryGesture.text.toUpperCase();
-                    } else if (anyPinching) {
-                        gestureBoxText.textContent = "PINCH DETECTED";
-                    } else if (totalFingersOpen > 0) {
-                        gestureBoxText.textContent = "TRACKING FINGERS";
-                    } else {
-                        gestureBoxText.textContent = "TRACKING...";
-                    }
-                }
-
-                // Restore canvas context to un-mirror for text drawing
-                canvasCtx.restore();
-                drawHearts(canvasCtx);
-                
-                if (primaryGesture && primaryGesture.type === 'fire') {
-                    const midX = (primaryThumbTip.x + primaryIndexTip.x) / 2;
-                    const midY = (primaryThumbTip.y + primaryIndexTip.y) / 2;
-                    
-                    const realX = canvasElement.width - (midX * canvasElement.width);
-                    const realY = (midY * canvasElement.height) - 40;
-                    
-                    canvasCtx.font = "40px Arial";
-                    canvasCtx.textAlign = "center";
-                    canvasCtx.textBaseline = "middle";
-                    canvasCtx.fillText("🔥", realX, realY);
-                }
-
-                // Second pass for labels
-                if (isOverlayEnabled) {
-                    for (const landmarks of results.multiHandLandmarks) {
-                        const thumbTip = landmarks[4];
-                        const indexTip = landmarks[8];
-                        const middleTip = landmarks[12];
-
-                        canvasCtx.font = "bold 13px monospace";
-                        canvasCtx.shadowColor = "rgba(0,0,0,0.8)";
-                        canvasCtx.shadowBlur = 4;
-                        canvasCtx.fillStyle = "#fff";
-
-                        const drawFloatingText = (lm, text, offsetX = 15, offsetY = 0) => {
-                            const realX = canvasElement.width - (lm.x * canvasElement.width) + offsetX;
-                            const realY = (lm.y * canvasElement.height) + offsetY;
-                            canvasCtx.fillText(text, realX, realY);
-                        };
-
-                        // Use height above screen bottom: 1 - lm.y
-                        drawFloatingText(thumbTip, `T(${(1 - thumbTip.y).toFixed(2)})`, 15, -5);
-                        drawFloatingText(indexTip, `I(${(1 - indexTip.y).toFixed(2)})`, 15, -5);
-                        drawFloatingText(middleTip, `M(${(1 - middleTip.y).toFixed(2)})`, 15, -5);
-                    }
-                }
-            } else {
-                prevGlobalPinchDist = -1;
-                canvasCtx.restore();
-                drawHearts(canvasCtx);
-
-                if (isLoaded) {
-                    if (gestureBoxText) gestureBoxText.textContent = "WAITING FOR HANDS...";
-                    totalFingersDisplay.textContent = "--";
-                }
+            // Draw Face Mesh (if available)
+            if (latestFaceResults) {
+                drawFaceMesh(canvasCtx, latestFaceResults);
             }
+
+            // Draw Hand Landmarks (if available)
+            if (latestHandResults) {
+                drawHands(canvasCtx, latestHandResults);
+            }
+
+            // Restore canvas context to un-mirror for overlays
+            canvasCtx.restore();
+
+            // Draw unmirrored overlays (Hearts, Fire emoji, text labels)
+            drawUnmirroredOverlays();
+            
+            requestAnimationFrame(renderAll);
         }
 
         // --- AI Model Setup ---
+        
+        // Hands
         const hands = new Hands({
             locateFile: (file) => {
                 return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
@@ -1159,13 +1599,38 @@
             minTrackingConfidence: 0.65
         });
 
-        hands.onResults(onResults);
+        hands.onResults(onHandResults);
 
-        // --- Camera Setup Setup ---
+        // Face Mesh
+        const faceMesh = new FaceMesh({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+            }
+        });
+
+        faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        faceMesh.onResults(onFaceResults);
+
+        // --- Camera Setup ---
         const camera = new Camera(videoElement, {
             onFrame: async () => {
-                // MediaPipe requires the frame processing await
-                await hands.send({ image: videoElement });
+                // Reuse the same video frame for both MediaPipe models
+                try {
+                    await hands.send({ image: videoElement });
+                } catch (error) {
+                    console.error("Hand tracking error:", error);
+                }
+                try {
+                    await faceMesh.send({ image: videoElement });
+                } catch (error) {
+                    console.error("Face tracking error:", error);
+                }
             },
             width: 1280, // Request HD for better model performance
             height: 720
@@ -1174,6 +1639,8 @@
         // Start Camera Stream
         camera.start();
 
+        // Start rendering loop
+        renderAll();
     </script>
 </body>
 
